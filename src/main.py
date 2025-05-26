@@ -1,60 +1,36 @@
 import pygame
 import sys
-import csv
+import constants
 from player import Player
-
-SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
-FPS = 60
-WHITE = (255, 255, 255)
-BACKGROUND = (24, 33, 51)
+from camera import Camera
+import level
+import tile_data
 
 # Pygame Setup
 pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("Platformer")
-WINDOW = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SHOWN)
+WINDOW = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.SHOWN)
 clock = pygame.time.Clock()
 FPS = 60
 
-camera = pygame.Vector2(0, 0)
-CAMERA_SMOOTHING = 5.0
+camera = Camera(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+CAMERA_SMOOTHING = 30.0
 
 font = pygame.font.Font("./assets/fonts/ByteBounce.ttf", 70)
 
-def load_map(path):
-    with open(path, newline='') as file:
-        return [[int(tile) for tile in row] for row in csv.reader(file)]
-
-def load_tile(path, scale=1, colorkey=None):
-    image = pygame.image.load(path).convert_alpha()
-    if scale != 1:
-        image = pygame.transform.scale(image, (int(image.get_width() * scale), int(image.get_height() * scale)))
-    if colorkey is not None:
-        image.set_colorkey(colorkey)
-    return image
-
-levels = {
-    1: "level1.csv",
-    2: "level2.csv"
-}
+levels = level.levels
 current_level = 1
 
-TILES = {
-    2: load_tile("./assets/images/dirt.png", 2),
-    3: load_tile("./assets/images/grass.png", 2),
-    4: load_tile("./assets/images/arrow_sign.png", 2),
-    5: load_tile("./assets/images/plant_small.png", 2),
-    6: load_tile("./assets/images/spike.png", 2),
-    7: load_tile("./assets/images/checkpoint.png", 2),
-    8: load_tile("./assets/images/finish.png", 2)
-}
-TILE_SIZE = TILES[2].get_width()
-character_img = load_tile("./assets/images/character.png", 1.5, (0, 0, 0))
+tile_data.TILES, tile_data.TILE_SIZE = tile_data.load_tiles()
+TILES = tile_data.TILES
+TILE_SIZE = tile_data.TILE_SIZE
+character_img = tile_data.load("./assets/images/character.png", 1.5, (0, 0, 0))
 
 def load_level(level_id):
     global tile_map, spawn, platforms, death_colliders, checkpoint_colliders, finish_colliders, player, last_checkpoint
 
-    tile_map = load_map(levels[level_id])
+    tile_map = level.load_map(levels[level_id])
     spawn = pygame.Vector2(100, 100)
 
     platforms = []
@@ -77,8 +53,7 @@ def load_level(level_id):
             elif tile == 8:
                 finish_colliders.append(pygame.Rect(*world_pos, TILE_SIZE, TILE_SIZE))
     player = Player(spawn.x, spawn.y, 30, 35, character_img)
-    camera.x = player.pos.x + player.rect.width // 2 - SCREEN_WIDTH // 2
-    camera.y = player.pos.y + player.rect.height // 2 - SCREEN_HEIGHT // 2
+    camera.update(player.pos, (player.rect.width, player.rect.height), 1)
     last_checkpoint = pygame.Vector2(spawn.x, spawn.y)
 
 load_level(current_level)
@@ -103,8 +78,7 @@ while running:
     if death:
         player.pos = last_checkpoint.copy()
         player.vel = pygame.Vector2(0, 0)
-        camera.x = player.pos.x + player.rect.width // 2 - SCREEN_WIDTH // 2
-        camera.y = player.pos.y + player.rect.height // 2 - SCREEN_HEIGHT // 2
+        camera.update(player.pos, (player.rect.width, player.rect.height), 1)
 
     for collider in checkpoint_colliders[:]:
         if player.rect.colliderect(collider):
@@ -120,28 +94,25 @@ while running:
             running = False
 
     # Camera to Player
-    target_x = player.pos.x + player.rect.width / 2 - SCREEN_WIDTH / 2
-    target_y = player.pos.y + player.rect.height / 2 - SCREEN_HEIGHT / 2
-    camera.x += (target_x - camera.x) * CAMERA_SMOOTHING * dt
-    camera.y += (target_y - camera.y) * CAMERA_SMOOTHING * dt
+    camera.update(player.pos, (player.rect.width, player.rect.height), CAMERA_SMOOTHING)
 
-    WINDOW.fill(BACKGROUND)
+    WINDOW.fill(constants.BACKGROUND)
 
-    start_x = max(0, int(camera.x) // TILE_SIZE)
-    end_x = min(len(tile_map[0]), int((camera.x + SCREEN_WIDTH) // TILE_SIZE) + 1)
-    start_y = max(0, int(camera.y) // TILE_SIZE)
-    end_y = min(len(tile_map), int((camera.y + SCREEN_HEIGHT) // TILE_SIZE) + 1)
+    start_x = max(0, int(camera.offset.x) // TILE_SIZE)
+    end_x = min(len(tile_map[0]), int((camera.offset.x + constants.SCREEN_WIDTH) // TILE_SIZE) + 1)
+    start_y = max(0, int(camera.offset.y) // TILE_SIZE)
+    end_y = min(len(tile_map), int((camera.offset.y + constants.SCREEN_HEIGHT) // TILE_SIZE) + 1)
 
     for y in range(start_y, end_y):
         for x in range(start_x, end_x):
             tile = tile_map[y][x]
             if tile in TILES:
-                WINDOW.blit(TILES[tile], (x * TILE_SIZE - camera.x, y * TILE_SIZE - camera.y))
+                WINDOW.blit(TILES[tile], (x * TILE_SIZE - camera.offset.x, y * TILE_SIZE - camera.offset.y))
 
-    player.draw(WINDOW, camera)
+    player.draw(WINDOW, camera.offset)
 
-    level_text = font.render(f"{current_level}", True, WHITE)
-    WINDOW.blit(level_text, (SCREEN_WIDTH / 2, 20))
+    level_text = font.render(f"{current_level}", True, constants.WHITE)
+    WINDOW.blit(level_text, (constants.SCREEN_WIDTH / 2, 20))
 
     pygame.display.flip()
 
