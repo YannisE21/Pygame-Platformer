@@ -45,6 +45,12 @@ class Player:
         self.JUMP_FORCE = -700
         self.GRAVITY = 1700
 
+        self.jump_buffer_time = 0.15
+        self.jump_buffer_timer = 0.0
+
+        self.coyote_time = 0.1
+        self.coyote_timer = 0.0
+
     def handle_input(self, keys, dt):
         move_dir = 0
         if keys[pygame.K_d]:
@@ -61,14 +67,29 @@ class Player:
             self.vel.x = 0
         self.vel.x = max(min(self.vel.x, self.MAX_SPEED), -self.MAX_SPEED)
 
-        if (keys[pygame.K_SPACE] or keys[pygame.K_w]) and self.on_ground:
-            self.vel.y = self.JUMP_FORCE
-            self.on_ground = False
+        jump_pressed = keys[pygame.K_SPACE] or keys[pygame.K_w]
+        if jump_pressed:
+            self.jump_buffer_timer = self.jump_buffer_time
 
     def apply_gravity(self, dt):
         self.vel.y += self.GRAVITY * dt
 
+    def try_jump(self):
+        if self.coyote_timer > 0:
+            self.vel.y = self.JUMP_FORCE
+            self.coyote_timer = 0
+            self.jump_buffer_timer = 0
+            return True
+        return False
+
     def update(self, dt, platforms):
+        if self.jump_buffer_timer > 0:
+            self.jump_buffer_timer -= dt
+        if not self.on_ground:
+            self.coyote_timer -= dt
+        else:
+            self.coyote_timer = self.coyote_time
+
         self.pos.x += self.vel.x * dt
         self.rect.x = round(self.pos.x)
         for platform in platforms:
@@ -83,6 +104,7 @@ class Player:
         self.apply_gravity(dt)
         self.pos.y += self.vel.y * dt
         self.rect.y = round(self.pos.y)
+
         self.on_ground = False
         for platform in platforms:
             if self.rect.colliderect(platform):
@@ -94,12 +116,17 @@ class Player:
                 self.pos.y = self.rect.y
                 self.vel.y = 0
 
+        if self.jump_buffer_timer > 0:
+            jumped = self.try_jump()
+            if jumped:
+                self.jump_buffer_timer = 0
+
     def draw(self, surface, offset):
         surface.blit(character_img, self.pos - offset)
 
 levels = {
     1: "level1.csv",
-    2: "level2.csv"  # Add more levels as needed
+    2: "level2.csv"
 }
 current_level = 1
 
