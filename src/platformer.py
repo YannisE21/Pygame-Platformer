@@ -125,14 +125,14 @@ while running:
             transition_text = font.render(f"Level {current_level}", True, constants.WHITE)
             WINDOW.blit(transition_text, (constants.SCREEN_WIDTH / 2 - (transition_text.get_width() / 2), constants.SCREEN_HEIGHT / 2 - (transition_text.get_height() / 2)))
             pygame.display.update()
-            pygame.time.delay(2000)
+            pygame.time.delay(4000)
         else:
             running = False
             fade(WINDOW, clock, 5, False)
             transition_text = font.render(f"The End", True, constants.WHITE)
             WINDOW.blit(transition_text, (constants.SCREEN_WIDTH / 2 - (transition_text.get_width() / 2), constants.SCREEN_HEIGHT / 2 - (transition_text.get_height() / 2)))
             pygame.display.update()
-            pygame.time.delay(2000)
+            pygame.time.delay(8000)
 
     # Camera to Player
     camera.update(player.pos, (player.rect.width, player.rect.height), CAMERA_SMOOTHING)

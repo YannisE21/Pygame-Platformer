@@ -1,5 +1,5 @@
-('C:\\Users\\Yannis\\Documents\\My Documents\\Current '
- 'Projects\\Pygame\\build\\main\\PYZ-00.pyz',
+('C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+ 'Platformer\\build\\main\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\__future__.py',
    'PYMODULE'),
@@ -144,6 +144,10 @@
   ('calendar',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\calendar.py',
    'PYMODULE'),
+  ('camera',
+   'C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+   'Platformer\\src\\camera.py',
+   'PYMODULE'),
   ('cmd',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\cmd.py',
    'PYMODULE'),
@@ -167,6 +171,10 @@
    'PYMODULE'),
   ('concurrent.futures.thread',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\concurrent\\futures\\thread.py',
+   'PYMODULE'),
+  ('constants',
+   'C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+   'Platformer\\src\\constants.py',
    'PYMODULE'),
   ('contextlib',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\contextlib.py',
@@ -395,6 +403,10 @@
    'PYMODULE'),
   ('json.scanner',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\scanner.py',
+   'PYMODULE'),
+  ('level',
+   'C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+   'Platformer\\src\\level.py',
    'PYMODULE'),
   ('logging',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\logging\\__init__.py',
@@ -855,6 +867,10 @@
   ('platform',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\platform.py',
    'PYMODULE'),
+  ('player',
+   'C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+   'Platformer\\src\\player.py',
+   'PYMODULE'),
   ('pprint',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\pprint.py',
    'PYMODULE'),
@@ -989,6 +1005,10 @@
    'PYMODULE'),
   ('threading',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\threading.py',
+   'PYMODULE'),
+  ('tile_data',
+   'C:\\Users\\Yannis\\Documents\\My Documents\\Current Projects\\Pygame '
+   'Platformer\\src\\tile_data.py',
    'PYMODULE'),
   ('token',
    'C:\\Users\\Yannis\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\token.py',
