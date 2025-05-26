@@ -27,6 +27,21 @@ TILES = tile_data.TILES
 TILE_SIZE = tile_data.TILE_SIZE
 character_img = tile_data.load("./assets/images/character.png", 1.5, (0, 0, 0))
 
+def fade(screen, clock, speed=5, fade_in=False):
+    fade_surface = pygame.Surface(screen.get_size())
+    fade_surface.fill((0, 0, 0))
+    
+    if fade_in:
+        alpha_values = range(255, -1, -speed)  # Von 255 nach 0
+    else:
+        alpha_values = range(0, 256, speed)    # Von 0 nach 255
+
+    for alpha in alpha_values:
+        fade_surface.set_alpha(alpha)
+        screen.blit(fade_surface, (0, 0))
+        pygame.display.update()
+        clock.tick(60)
+
 def load_level(level_id):
     global tile_map, spawn, platforms, death_colliders, checkpoint_colliders, finish_colliders, player, last_checkpoint
 
@@ -84,14 +99,28 @@ while running:
         if player.rect.colliderect(collider):
             last_checkpoint = pygame.Vector2(collider.x, collider.y)
             checkpoint_colliders.remove(collider)
+            tile_x = collider.x // TILE_SIZE
+            tile_y = collider.y // TILE_SIZE
+            tile_map[tile_y][tile_x] = 9
+            
 
     idx = player.rect.collidelist(finish_colliders)
     if idx != -1:
         if current_level + 1 in levels:
             current_level += 1
+            fade(WINDOW, clock, 5, False)
             load_level(current_level)
+            transition_text = font.render(f"Level {current_level}", True, constants.WHITE)
+            WINDOW.blit(transition_text, (constants.SCREEN_WIDTH / 2 - (transition_text.get_width() / 2), constants.SCREEN_HEIGHT / 2 - (transition_text.get_height() / 2)))
+            pygame.display.update()
+            pygame.time.delay(2000)
         else:
             running = False
+            fade(WINDOW, clock, 5, False)
+            transition_text = font.render(f"The End", True, constants.WHITE)
+            WINDOW.blit(transition_text, (constants.SCREEN_WIDTH / 2 - (transition_text.get_width() / 2), constants.SCREEN_HEIGHT / 2 - (transition_text.get_height() / 2)))
+            pygame.display.update()
+            pygame.time.delay(2000)
 
     # Camera to Player
     camera.update(player.pos, (player.rect.width, player.rect.height), CAMERA_SMOOTHING)
