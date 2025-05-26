@@ -42,6 +42,18 @@ def fade(screen, clock, speed=5, fade_in=False):
         pygame.display.update()
         clock.tick(60)
 
+def draw_tiles():
+    start_x = max(0, int(camera.offset.x) // TILE_SIZE)
+    end_x = min(len(tile_map[0]), int((camera.offset.x + constants.SCREEN_WIDTH) // TILE_SIZE) + 1)
+    start_y = max(0, int(camera.offset.y) // TILE_SIZE)
+    end_y = min(len(tile_map), int((camera.offset.y + constants.SCREEN_HEIGHT) // TILE_SIZE) + 1)
+
+    for y in range(start_y, end_y):
+        for x in range(start_x, end_x):
+            tile = tile_map[y][x]
+            if tile in TILES:
+                WINDOW.blit(TILES[tile], (x * TILE_SIZE - camera.offset.x, y * TILE_SIZE - camera.offset.y))
+
 def load_level(level_id):
     global tile_map, spawn, platforms, death_colliders, checkpoint_colliders, finish_colliders, player, last_checkpoint
 
@@ -127,17 +139,7 @@ while running:
 
     WINDOW.fill(constants.BACKGROUND)
 
-    start_x = max(0, int(camera.offset.x) // TILE_SIZE)
-    end_x = min(len(tile_map[0]), int((camera.offset.x + constants.SCREEN_WIDTH) // TILE_SIZE) + 1)
-    start_y = max(0, int(camera.offset.y) // TILE_SIZE)
-    end_y = min(len(tile_map), int((camera.offset.y + constants.SCREEN_HEIGHT) // TILE_SIZE) + 1)
-
-    for y in range(start_y, end_y):
-        for x in range(start_x, end_x):
-            tile = tile_map[y][x]
-            if tile in TILES:
-                WINDOW.blit(TILES[tile], (x * TILE_SIZE - camera.offset.x, y * TILE_SIZE - camera.offset.y))
-
+    draw_tiles()
     player.draw(WINDOW, camera.offset)
 
     level_text = font.render(f"{current_level}", True, constants.WHITE)
