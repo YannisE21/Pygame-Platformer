@@ -5,6 +5,7 @@ from player import Player
 from camera import Camera
 import level
 import tile_data
+from enemy import Enemy
 
 # Pygame Setup
 pygame.init()
@@ -26,15 +27,16 @@ tile_data.TILES, tile_data.TILE_SIZE = tile_data.load_tiles()
 TILES = tile_data.TILES
 TILE_SIZE = tile_data.TILE_SIZE
 character_img = tile_data.load("./assets/images/character.png", 1.5, (0, 0, 0))
+enemy_img = tile_data.load("./assets/images/enemy.png", 1.5, (0, 0, 0))
 
 def fade(screen, clock, speed=5, fade_in=False):
     fade_surface = pygame.Surface(screen.get_size())
     fade_surface.fill((0, 0, 0))
-    
+
     if fade_in:
-        alpha_values = range(255, -1, -speed)  # Von 255 nach 0
+        alpha_values = range(255, -1, -speed)
     else:
-        alpha_values = range(0, 256, speed)    # Von 0 nach 255
+        alpha_values = range(0, 256, speed)
 
     for alpha in alpha_values:
         fade_surface.set_alpha(alpha)
@@ -55,7 +57,7 @@ def draw_tiles():
                 WINDOW.blit(TILES[tile], (x * TILE_SIZE - camera.offset.x, y * TILE_SIZE - camera.offset.y))
 
 def load_level(level_id):
-    global tile_map, spawn, platforms, death_colliders, checkpoint_colliders, finish_colliders, player, last_checkpoint
+    global tile_map, spawn, platforms, death_colliders, checkpoint_colliders, finish_colliders, player, last_checkpoint, enemies
 
     tile_map = level.load_map(levels[level_id])
     spawn = pygame.Vector2(100, 100)
@@ -64,6 +66,7 @@ def load_level(level_id):
     death_colliders = []
     checkpoint_colliders = []
     finish_colliders = []
+    enemies = []
 
     for y, row in enumerate(tile_map):
         for x, tile in enumerate(row):
@@ -79,11 +82,19 @@ def load_level(level_id):
                 checkpoint_colliders.append(pygame.Rect(*world_pos, TILE_SIZE, TILE_SIZE))
             elif tile == 8:
                 finish_colliders.append(pygame.Rect(*world_pos, TILE_SIZE, TILE_SIZE))
+            elif tile == 10:
+                enemies.append(Enemy(world_pos[0], world_pos[1], 30, 35, enemy_img))
+
     player = Player(spawn.x, spawn.y, 30, 35, character_img)
     camera.update(player.pos, (player.rect.width, player.rect.height), 1)
     last_checkpoint = pygame.Vector2(spawn.x, spawn.y)
 
 load_level(current_level)
+
+def handle_player_death():
+    player.pos = last_checkpoint.copy()
+    player.vel = pygame.Vector2(0, 0)
+    camera.update(player.pos, (player.rect.width, player.rect.height), 1)
 
 running = True
 while running:
@@ -97,15 +108,18 @@ while running:
     player.handle_input(keys, dt)
     player.update(dt, platforms)
 
+    for enemy in enemies:
+        enemy.update(dt, player.pos)
+        if enemy.collides_with(player.rect):
+            handle_player_death()
+
     death = False
     idx = player.rect.collidelist(death_colliders)
     if idx != -1:
         death = True
 
     if death:
-        player.pos = last_checkpoint.copy()
-        player.vel = pygame.Vector2(0, 0)
-        camera.update(player.pos, (player.rect.width, player.rect.height), 1)
+        handle_player_death()
 
     for collider in checkpoint_colliders[:]:
         if player.rect.colliderect(collider):
@@ -114,7 +128,6 @@ while running:
             tile_x = collider.x // TILE_SIZE
             tile_y = collider.y // TILE_SIZE
             tile_map[tile_y][tile_x] = 9
-            
 
     idx = player.rect.collidelist(finish_colliders)
     if idx != -1:
@@ -134,13 +147,14 @@ while running:
             pygame.display.update()
             pygame.time.delay(8000)
 
-    # Camera to Player
     camera.update(player.pos, (player.rect.width, player.rect.height), CAMERA_SMOOTHING)
 
     WINDOW.fill(constants.BACKGROUND)
 
     draw_tiles()
     player.draw(WINDOW, camera.offset)
+    for enemy in enemies:
+        enemy.draw(WINDOW, camera.offset)
 
     level_text = font.render(f"{current_level}", True, constants.WHITE)
     WINDOW.blit(level_text, (constants.SCREEN_WIDTH / 2, 20))
