@@ -5,13 +5,13 @@ A small Platformer Game just to learn the basics of pygame
 ## ✅ Requirements
 
 - Python 3.8 or newer
-- `pip` (Python package manager)
-- Git (to clone this repo)
+- `pip`
+- Git
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yannis-e/Pygame-Platformer
+git clone https://github.com/yannis-e/Pygame-Platformer.git
 cd Pygame-Platformer
 ```
 ### 2. Install Dependencies
@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ```
 ### 3. Run Application
 ```bash
-python platformer.py
+python ./src/platformer.py
 ```
 
 
