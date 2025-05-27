@@ -25,6 +25,6 @@ python ./src/platformer.py
 ```
 
 
-📰 License
+## 📰 License
 
 MIT © [Yannis E](https://github.com/yannis-e)
