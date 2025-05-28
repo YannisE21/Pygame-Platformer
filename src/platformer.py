@@ -81,7 +81,7 @@ def load_level(level_id):
             elif tile == 7:
                 checkpoint_colliders.append(pygame.Rect(*world_pos, TILE_SIZE, TILE_SIZE))
             elif tile == 8:
-                finish_colliders.append(pygame.Rect(*world_pos, TILE_SIZE, TILE_SIZE))
+                finish_colliders.append(pygame.Rect(world_pos[0], world_pos[1] + TILE_SIZE * 0.75, TILE_SIZE, TILE_SIZE / 4))
             elif tile == 10:
                 enemies.append(Enemy(world_pos[0], world_pos[1], 30, 35, enemy_img))
 
